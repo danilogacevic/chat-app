@@ -49,6 +49,9 @@ class ChatController extends Controller
 
        <SCRIPT>
 
+       var lastKeyUp = 0;
+       var typedCounter = 0.00;
+
        $(document).ready(function(){
 
 			
@@ -68,13 +71,29 @@ class ChatController extends Controller
 
 					 });
 
-        $('#typing').keyup(function(){
-            
-            $.post('/typing',
+        $('#typing').keyup(function(event){
+
+          lastKeyUp = 0;
+
+          if (event.keyCode >= 65 && event.keyCode <= 90) {
+
+            typedCounter += 0.5;
+
+          }
+          
+
+          if(typedCounter > 7) {
+
+            typedCounter = 0;
+
+            setTimeout(function(){
+              
+               $.post('/typing',
 
                     {
 
                       "_token": $('#search-form').find( 'input[name=_token]' ).val(),
+                      "id":$("#user_id").val(),
                       "message":" is typing..."
 
                     },
@@ -86,9 +105,39 @@ class ChatController extends Controller
 
               );
 
+            },1000);
+          }
+            
+           
+
         });
 
 			function previous_communication (){
+
+
+          lastKeyUp = ++lastKeyUp % 360 + 1;
+
+           if(lastKeyUp>1 && $('#search-form').find( 'input[name=_token]' ).val()!=""){
+
+              $.post('/typing',
+
+                    {
+
+                      "_token": $('#search-form').find( 'input[name=_token]' ).val(),
+                      "id":$("#user_id").val(),
+                      "message":""
+
+                    },
+
+                    function(data){
+
+                       
+                    }
+
+              );
+
+
+           }
 
 				   $.post(
 				            '/messages',
@@ -181,8 +230,9 @@ return response()->json(['users'=>$a,'code' => $code]);
     public function whoIsTyping(AdminRequest $request){
 
       $message = $request->input('message');
+      $id = $request->input('id');
 
-      event(new whoIsTyping($message));
+      event(new whoIsTyping($message,$id));
        
        
     }

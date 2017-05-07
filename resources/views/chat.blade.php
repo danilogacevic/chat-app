@@ -178,7 +178,15 @@ $(document).ready(function(){
 
 		      	var status = data.message;
 
-		        $("#isTyping").text(status);
+		      	if($("#poruke").val() == data.id) {
+
+		      		$("#isTyping").text(status);
+		      	}
+
+		      		
+		      	
+
+		        
 
 		      }
 

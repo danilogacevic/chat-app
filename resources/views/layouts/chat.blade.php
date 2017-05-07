@@ -17,7 +17,7 @@
 
 	
 	</div>
-	<div class="" id="isTyping"></div>
+	<div class="" id="isTyping" style="position: absolute;left: 31.2%;top:52%;"></div>
 
 		{!! Form::open(['method'=>'POST','action'=>'ChatController@send','id'=>'send-form']) !!}
 	
@@ -41,6 +41,7 @@
 </div>
 
 <div id="code"></div>
+<input type="hidden" id="user_id" value="{{Auth::user()->id}}">
 
 	
 </body>
