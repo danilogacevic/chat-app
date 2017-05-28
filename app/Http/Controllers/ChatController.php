@@ -26,19 +26,26 @@ class ChatController extends Controller
 
     if(!empty($search)){
 
-          $users = User::where('name','like','%'.$search.'%')->paginate(2);
+          $users = User::where('name','like','%'.$search.'%')->paginate(1);
       
 
               if($users->count()>0){
 
-                  
+                  $a='';
 
                    foreach ($users as $user) {
                       # code...
 
-                    $a = "<a href='javascript:void(0)' class='user'>$user->name</a>
+                    if($user->name != Auth::user()->name){
 
-                    		<input type='hidden' value= '$user->id' name='id' class='user'>";
+                      global $a;
+
+                      $a .= "<a href='javascript:void(0)' class='user'>$user->name</a>
+
+                        <input type='hidden' value= '$user->id' name='id' class='user'>";
+                    }
+
+                    
 
                     }
 
@@ -49,8 +56,9 @@ class ChatController extends Controller
 
        <SCRIPT>
 
-       var lastKeyUp = 0;
+    
        var typedCounter = 0.00;
+       var timer=1000;
 
        $(document).ready(function(){
 
@@ -73,7 +81,29 @@ class ChatController extends Controller
 
         $('#typing').keyup(function(event){
 
-          lastKeyUp = 0;
+
+          clearTimeout(timer);
+
+          timer = setTimeout(function(){
+
+             $.post('/typing',
+
+                    {
+
+                      "_token": $('#search-form').find( 'input[name=_token]' ).val(),
+                      "id":$("#user_id").val(),
+                      "message":""
+
+                    },
+
+                    function(data){
+
+                       
+                    }
+
+              );
+
+          },1000)
 
           if (event.keyCode >= 65 && event.keyCode <= 90) {
 
@@ -82,7 +112,7 @@ class ChatController extends Controller
           }
           
 
-          if(typedCounter > 7) {
+          if(typedCounter > 3) {
 
             typedCounter = 0;
 
@@ -113,31 +143,6 @@ class ChatController extends Controller
         });
 
 			function previous_communication (){
-
-
-          lastKeyUp = ++lastKeyUp % 360 + 1;
-
-           if(lastKeyUp>1 && $('#search-form').find( 'input[name=_token]' ).val()!=""){
-
-              $.post('/typing',
-
-                    {
-
-                      "_token": $('#search-form').find( 'input[name=_token]' ).val(),
-                      "id":$("#user_id").val(),
-                      "message":""
-
-                    },
-
-                    function(data){
-
-                       
-                    }
-
-              );
-
-
-           }
 
 				   $.post(
 				            '/messages',
